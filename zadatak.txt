@@ -1,0 +1,21 @@
+Potrebno je izraditi web-aplikaciju koja će omogućiti potencijalnom napadaču korištenje dvije različite tehnike sigurnosnih napada, odnosno dvije ranjivosti web-aplikacija, iz dolje navedenih kategorija.
+
+Za svaku je potrebno implementirati:
+
+funkcionalnost kojom se omogućuje ranjivost
+funkcionalnost kojom se onemogućuje ranjivost
+Npr. napraviti "prekidač" (npr. checkbox, tipka ili padajući izbornik) kojim se ranjivost po želji uključuje i isključuje.
+
+Ugrađene ranjivosti (sigurnosne nedostatke), s njima povezane napadačke tehnike i implementirane funkcionalnosti moraju biti dostupne kroz korisničko sučelje web-aplikacije tako da:
+
+napadi se mogu pokrenuti kroz sučelje web-aplikacije
+učinak napada bude vidljiv u korisničkom sučelju (npr. prikladnim ispisom niza izvršenih akcija, ispisom izmijenjenog sadržaja baze podataka, prikazom javascript:alert standardnog dijaloga s podacima o korisničkoj sjednici document.cookie itd.).
+Za eventualno slanje ili primanje e-mail poruka sa malicioznim linkom koristiti neki od servisa s privremenim poštanskim sandučićima (npr. https://www.mailinator.com/).
+
+Web-aplikaciju je potrebno postaviti u oblak, a izvorni kod nužan i dovoljan za pokretanje aplikacije pohraniti na GitHub ili GitLab.
+
+Napomena: Ako iz nekog razloga nećete moći izvesti ranjivost u cloud instalaciji (npr. ako sustav sam blokira brute-force napad ili odabrani radni okvir onemogućuje SQL umetanje) onda morate napisati kratke i jasne upute kako instalirati i pokrenuti sustav lokalno, po mogućnosti što jednostavnije npr. npm i && npm run server.
+
+SQL umetanje (SQL Injection) - implementirati barem tautologiju
+i
+Lažiranje zahtjeva na drugom sjedištu (Cross Site Request Forgery, CSRF)
