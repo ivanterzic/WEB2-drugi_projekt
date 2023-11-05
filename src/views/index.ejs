@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+<html>
+    <head>
+        <title>Web2 - Drugi projekt</title>
+        <%- include('partials/header') %>
+        <style>
+            
+            p {
+                font-size: 18px;
+            }
+            h3 a {
+                color: black;
+                
+            }
+            h3 a:hover {
+                color: black;
+            }
+            body {
+                margin: 0;
+            }
+            p, h3{
+                margin-left: 20px;
+            }
+                
+        </style>
+    </head>
+    <body>
+        <div style="padding: 1%;">
+            <h3>Uključene ranjivosti:</h3>
+            <ul>
+                <li>
+                    <h3><a href="/sql">SQL Ubacivanje</a></h2>
+                    <p>Omogućuje napadaču da izvrši proizvoljne SQL upite na bazi podataka.</p>
+                    <p>Za više informacija o SQL Injection ranjivosti, posjetite <a href="https://owasp.org/www-community/attacks/SQL_Injection">OWASP stranicu</a>.</p>
+                </li>
+                <li>
+                    <h3><a href="/csrf">Cross Site Request Forgery (CSRF)</a></h2>
+                    <p>Omogućuje napadaču da izvrši proizvoljne akcije u ime korisnika koji je prijavljen na web aplikaciju.</p>
+                    <p>Za više informacija o CSRF ranjivosti, posjetite <a href="https://owasp.org/www-community/attacks/csrf">OWASP stranicu</a>.</p>
+                </li>
+            </ul>
+        </div>
+        
+    </body>
+</html>

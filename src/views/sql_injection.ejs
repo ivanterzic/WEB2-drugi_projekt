@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>SQL Ubacivanja</title>
+        <%- include('partials/header') %>
+        <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
+    </head>
+    <body>
+        <div class="container">
+            <h1 class="text-center my-5">SQL Ubacivanje</h1>
+
+            <div><b>Upute:</b> Ovdje vidimo primjer SQL ubacivanja. Ranjivost se isljučuje označavanjem checkboxa. Kao ime korisnika možete upisati normalno ime, npr. John (baza je populirana s ID-evima od 1 do 5: Jane Doe, David Lee, Alice Johnson, Bob Smith i John Doe).<div>
+            <ul>
+                <li><b>Tautologija:</b> Kao primjer tautologije možete upisati izraz koji je uvijek istinit, npr. <b>John' OR 1=1--</b>. Ovaj će izraz na jednom mjestu ispisati sve korisnike u bazi, oznaku komentara koristimo kako bi eliminirali danje znakove u upitu.</li>
+                <li><b>Slijepo umetanje:</b> Kao primjer slijepog umetanja možete probati unijeti sljedeće u polje za unos: <b>ivan' OR 1=1 ORDER BY 1--</b>, <b>ivan' OR 1=1 ORDER BY 3--</b>, <b>ivan' OR 1=1 ORDER BY 4--</b> te <b>ivan' OR 1=1 ORDER BY 5--</b>. Probavanjem zadnjeg unosa događa se error na zadnjoj naredbi: "error: ORDER BY position 5 is not in select list" što znači da upit vraća 4 parametra. Ovime saznajemo strukturu baze i upita. No struktura se upita može saznati i ako je kod open-source</li>
+                <li><b>Upit UNION:</b> Nakon slijepog umetanja, možemo obaviti upit UNION kojim ćemo ispitati neke nove informacije, znamo da rezultat ima 4 stupca. Npr. unosom <b>' AND 0=1 UNION SELECT CURRENT_USER, VERSION(), null, (SELECT ARRAY_AGG(column_name) FROM information_schema.columns WHERE table_name = 'users')::TEXT--</b> nakon što saznamo ime tablice po primjeru s predavanja možemo vidjeti ime korisnika, verziju baze i stupce tablice. Kod ovakvog umetanja trebamo paziti na poklapanje tipova podataka.
+                Prethodnim upitom UNION saznali smo strukturu tablice, te onda možemo napisati upit <b>John Doe' UNION SELECT name, surname || ' ' || email, id, password FROM users WHERE name || ' ' || surname LIKE 'John Doe'--</b> kojim ćemo dobiti hashirani password korisnika John Doe. Situacija bi bila još gora da se passwordi čuvaju u plaintext obliku.</li>
+            </ul>
+            <div><b>Zaštita:</b> Označavanjem checkboxa se radi validacija i sanetizacija unosa te parametrizacija unosa. Također se ne ispisuju detalji o greškama.</div>
+            <hr>
+            <form method="post" action="/sql/search">
+                <div class="form-group">
+                    <label for="name">Pretraži po imenu i prezimenu:</label>
+                    <input type="text" class="form-control" id="name" name="name" required>
+                </div>
+                <div class="form-group">
+                    <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="vulnerability" name="vulnerability" value="on">
+                        <label class="form-check-label" for="vulnerability">Uključi ranjivost kod slanja zahtjeva</label>
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-dark">Pretraži</button>
+            </form>
+            <div class="my-5">
+                <h6 class="lead" style="color: red;">
+                    <%= message %>
+                </h6>
+                <h6 class="lead">Broj rezultata: <%= results.length %></h6>
+                <% for (let i = 0; i < results.length; i++) { %>
+                    <div class="card mb-3">
+                        <div class="card-body">
+                            <h5 class="card-title"><%= results[i].name %> <%= results[i].surname %></h5>
+                            <h6 class="card-subtitle mb-2 text-muted"><%= results[i].email %></h6>
+                            <p class="card-text">ID: <%= results[i].id %></p>
+                        </div>
+                    </div>
+                <% } %>
+            </div>
+        </div>
+    </body>
+</html>
