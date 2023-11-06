@@ -4,7 +4,7 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "npm install && tsc npm run copy-views",
+    "build": "npm install && tsc && npm run copy-views",
     "nodemon_build": "npm run clean && tsc && npm run copy-views",
     "clean": "if exist dizst rmdir /s /q dist",
     "copy-views": "robocopy /mir /NFL /NDL /NJH /NJS /nc /ns /np src/views/ dist/views & exit 0",
