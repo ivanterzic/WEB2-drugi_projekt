@@ -15,7 +15,7 @@ const createTable = async () => {
         name VARCHAR(255),
         password VARCHAR(255),
         surname VARCHAR(255),
-        email VARCHAR(255),
+        email VARCHAR(255)
     )`;
     return db.query(query, []);
 }
@@ -24,8 +24,7 @@ const createCSRF = async () => {
     const query = `CREATE TABLE IF NOT EXISTS csrfexample(
         id SERIAL PRIMARY KEY,
         name VARCHAR(255),
-        account_balance FLOAT
-    )`;
+        account_balance FLOAT)`;
     return db.query(query, []);
 }
 
@@ -100,34 +99,30 @@ const generateTestUsers = async () => {
 
 
 
-/*generateTestUsers()
+generateTestUsers()
     .then(() => {
         console.log('Test users inserted successfully');
-        db.pool.end();
     })
     .catch(err => {
         console.log(err);
-        db.pool.end();
-    });*/
+    });
 
-/*generateTestCSRF()
+generateTestCSRF()
     .then(() => {
         console.log('Test CSRF users inserted successfully');
-        db.pool.end();
     })
     .catch(err => {
         console.log(err);
-        db.pool.end();
-    });*/
+    });
 
 generateTestSafeCSRF()
     .then(() => {
         console.log('Test Safe CSRF users inserted successfully');
-        db.pool.end();
     })
     .catch(err => {
         console.log(err);
-        db.pool.end();
     });
+
+db.pool.end()
 
 

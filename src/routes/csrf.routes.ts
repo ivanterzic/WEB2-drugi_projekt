@@ -15,7 +15,7 @@ const balaceDefaults = {
 }
 
 dotenv.config();
-const urlBase = process.env.DEV_URL || process.env.BASE_URL || "http://localhost:5000";
+const urlBase =  process.env.BASE_URL || process.env.DEV_URL || "http://localhost:5000";
 
 const csrfZastita = csrf();
 csrfRoutes.use(express.urlencoded({ extended: true }));
