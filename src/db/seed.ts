@@ -48,6 +48,34 @@ const generateTestCSRF = async () => {
     return Promise.all(promises);
 }
 
+const createSafeCSRF = async () => {
+    const query = `CREATE TABLE IF NOT EXISTS safecsrftable(
+        id SERIAL PRIMARY KEY,
+        name VARCHAR(255),
+        account_balance FLOAT
+    )`;
+    return db.query(query, []);
+}
+
+const generateTestSafeCSRF = async () => {
+    await createSafeCSRF();
+
+    const users = [
+        { name: 'Đuro', account_balance: 100000 },
+        { name: 'Pero', account_balance: 150 },
+        { name: 'Lopuža', account_balance: 0 }
+    ];
+
+    const promises = users.map(async (user) => {
+        const { name, account_balance } = user;
+        const query = 'INSERT INTO safecsrftable(name, account_balance) VALUES ($1, $2)';
+        const values = [name, account_balance];
+        return db.query(query, values);
+    });
+
+    return Promise.all(promises);
+}
+
 const generateTestUsers = async () => {
     await createTable();
 
@@ -85,6 +113,16 @@ const generateTestUsers = async () => {
 generateTestCSRF()
     .then(() => {
         console.log('Test CSRF users inserted successfully');
+        db.pool.end();
+    })
+    .catch(err => {
+        console.log(err);
+        db.pool.end();
+    });
+
+generateTestSafeCSRF()
+    .then(() => {
+        console.log('Test Safe CSRF users inserted successfully');
         db.pool.end();
     })
     .catch(err => {

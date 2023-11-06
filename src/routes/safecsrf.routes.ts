@@ -6,7 +6,7 @@ import csrf from 'csurf';
 
 dotenv.config();
 
-export const csrfRoutes = express.Router();
+export const safeCsrfRoutes = express.Router();
 
 const balaceDefaults = {
     "Đuro" : 100000,
@@ -18,14 +18,14 @@ dotenv.config();
 const urlBase = process.env.DEV_URL || process.env.BASE_URL || "http://localhost:5000";
 
 const csrfZastita = csrf();
-csrfRoutes.use(express.urlencoded({ extended: true }));
-csrfRoutes.use(session({
+safeCsrfRoutes.use(express.urlencoded({ extended: true }));
+safeCsrfRoutes.use(session({
     secret : 'secret',
     resave : true,
     saveUninitialized : true,
     cookie: { secure: false, httpOnly: false }
 }))
-csrfRoutes.use(function(req, res, next) {
+safeCsrfRoutes.use(function(req, res, next) {
     res.locals.username = req.session.username;
     next();
 });
@@ -59,7 +59,7 @@ function checkCredentials(req: express.Request, res: express.Response, next: exp
     }
 }
 
-csrfRoutes.get("/", checkLoggedIn, async (req, res) => {
+safeCsrfRoutes.get("/", checkLoggedIn, async (req, res) => {
     let results
     try {
         results = await db.query("SELECT name, account_balance FROM csrfexample", [])
@@ -70,15 +70,15 @@ csrfRoutes.get("/", checkLoggedIn, async (req, res) => {
     res.render('csrf', {results: results.rows, baseURL: urlBase + req.baseUrl});
 });
 
-csrfRoutes.get("/login", (req, res) => {
+safeCsrfRoutes.get("/login", (req, res) => {
     res.render('csrflogin', {message: "", baseURL: urlBase + req.baseUrl});
 });
 
-csrfRoutes.post("/login", checkCredentials, async (req, res) => {
+safeCsrfRoutes.post("/login", checkCredentials, async (req, res) => {
     res.redirect('/csrf/account');
 });
 
-csrfRoutes.get("/logout", async (req, res) => {
+safeCsrfRoutes.get("/logout", async (req, res) => {
     req.session.destroy(function(err) {
         if(err){
             res.send(err);
@@ -87,7 +87,7 @@ csrfRoutes.get("/logout", async (req, res) => {
     res.redirect('/csrf');
 });
 
-csrfRoutes.get("/account", checkLoggedIn, async (req, res) => {    
+safeCsrfRoutes.get("/account", checkLoggedIn, async (req, res) => {    
     let result
     try {
         result = await db.query("SELECT name, account_balance FROM csrfexample WHERE name = $1", [req.session.username])
@@ -99,7 +99,7 @@ csrfRoutes.get("/account", checkLoggedIn, async (req, res) => {
     }
 });
 
-csrfRoutes.get("/transferfunds", checkLoggedIn, async (req, res) => {
+safeCsrfRoutes.get("/transferfunds", checkLoggedIn, async (req, res) => {
     const from = req.session.username;
     const to = req.query.acc
     const amount = req.query.amount
@@ -147,11 +147,11 @@ csrfRoutes.get("/transferfunds", checkLoggedIn, async (req, res) => {
     }
 });
 
-csrfRoutes.get("/lopuzinlink", (req, res) => {
+safeCsrfRoutes.get("/lopuzinlink", (req, res) => {
    res.render('lopuza', {baseURL: urlBase + req.baseUrl});
 });
 
-csrfRoutes.post("/resetfunds" , async (req, res) => {
+safeCsrfRoutes.post("/resetfunds" , async (req, res) => {
     let result
     try {
         for (const [key, value] of Object.entries(balaceDefaults)) {

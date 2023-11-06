@@ -19,6 +19,7 @@
                     <h6 class="lead">Prijenos stredstava</h6>
                     <h6 class="lead"><%= message %></h6>
                     <form action="/csrf/transferfunds" method="get">
+                        <input type="hidden" name="_csrf" value="{{csrfToken}}">
                         <div class="form-group">
                             <label for="amount">Iznos:</label>
                             <input type="number" class="form-control" id="amount" name="amount" required>
