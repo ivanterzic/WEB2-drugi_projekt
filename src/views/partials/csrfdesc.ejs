@@ -4,63 +4,130 @@
             color: white;
         }
         a :hover {
+            color: black;
+        }
+        button {
             color: white;
         }
         button :hover {
             color: white;
         }
     </style>
+
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.16.0/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
 </head>
-<div class="container">
-    <div>
-        <h1 class="text-center my-5">CSRF</h1>
-        Ovdje vidimo primjer CSRF napada, tj. lažiranje zahtjeva na drugom sjedištu. Preglednik žrtve šalje naredbu ranjivoj web aplikaciji. Tipično se koristi za iniciranje transakcija, pristupa podatcima i slično. CSRF napad može se izvesti u GET i POST zahtjevima. Ovdje će se koristiti GET zahtjev.
-        <div>
-            <b>Upute:</b> Kod demonstracije ovog napada imat ćemo 3 aktera. Đuro, Pero i Lopuža. Stavite se u kožu Đure. Želite svome prijatelju Peri prebaciti vrijednost 100 neke valute. Prikaz bankovnog računa pojedinca dan je niže (ovdje bi se narušavala nesigurna pohrana (prikaz) osjetljivih podataka da su stvarni računi, narušio bi se i GDPR, ali ovdje je tu za primjer takav prikaz). 
-        </div>
-        <div>
-            Lopuža će pokušati CSRF napadom uzeti tu valutu. Lopuža radi sljedeći URL: <b><%= baseURL %>/transferfunds?acc=Lopuža&amount=1000</b>. Učitavanjem ili klikom na taj link šalje se GET zahtjev kojim će Lopuža dobiti novac. To će biti moguće jer je korisnik već prijavljen u sustav u svom pregledniku, tj. postoji kolačić sa sessionID-em. <b>Lopužin cilj je da natjera Đuru da otvori link (pošalje GET zahtjev) dok je njegova korisnička sjednica zapamćena u pregledniku</b>. URL se može ili "otvoriti" direktno ili staviti u src slike neke stranice, recimo otvaranjem stranice <b><%= baseURL %>/lopuzinlink</b> će se isto izvršiti napad jer je u sourceu slike sa širinom 0 i visinom 0 URL koji je Lopuža napravio. Naizgled će korisnik otvoriti samo praznu stranicu, ali će se izvršiti napad.
-        </div>
-        <div>
-            Za prijavu u račun (uzmite Đuro račun; za prijavu je username <b>Đuro</b>, a password <b>12345</b>).
-        </div>
-        <div>
-            Nakon logina, stvorena je Đurina sjednica. Dok je Đuro prijavljen se, otvaranjem gore navedenog linka skidaju se sredstva s Đurinog i uplaćuju na Lopužin račun. Ako probate otvoriti link nakon ili prije logouta, napad neće biti izvršen. Vidimo nakon izvršavanja da se Đuri smanjilo stanje na računu, a Lopuži povećalo. Napad se može izvršiti i gumbom CSRF napad koji se vidi kad je korisik logiran. CSRF napad kad korisnik nije logiran, tj. kad u pregledniku ne postoji sessionID rezultira redirectom na login.
-        </div>
-        <div>
-            Pokušajte otvoriti dani link i dok korisnik nije prijavljen. Taj link možete dobiti u phishing emailu ili nekim drugim neovisnim putem. Ovaj gumb je samo ovdje kao prečac za demonstraciju. 
-        </div>
-        <div>
-            
+
+<h1 class="text-center my-5">CSRF</h1>
+Ovdje vidimo primjer CSRF napada, tj. lažiranje zahtjeva na drugom sjedištu. Preglednik žrtve šalje naredbu ranjivoj web aplikaciji. Tipično se koristi za iniciranje transakcija, pristup podatcima i slično. CSRF napad može se izvesti u GET i POST zahtjevima.
+<div>
+    Kod demonstracije ovog napada imat ćemo 3 aktera. Đuro, Pero i Lopuža. Stavite se, recimo, u kožu Đure. Želite svome prijatelju Peri prebaciti vrijednost 100 neke valute. Prikaz bankovnog računa pojedinca dan je niže (ovdje bi se narušavala nesigurna pohrana (prikaz) osjetljivih podataka da su stvarni računi, narušio bi se i GDPR, ali ovdje je tu za primjer takav prikaz). Lopuža će pokušati iskoristiti CSRF ranjivost kako bi novac prebacio na svoj račun dok je Đuro prijavljen, tj. pokušat će iskorisiti sessionID spremljen u Đurinom pregledniku u svoju korist. 
+</div>
+<div class="container p-2">
+    <h6 class="lead">Sustav s ranjivosti</h6>
+    <div class="container">
+        <button class="btn btn-dark" type="button" data-toggle="collapse" data-target="#collapseUnsafe" aria-expanded="false" aria-controls="collapseUnsafe">
+            Otvori/zatvori upute
+        </button>
+        <div class="collapse" id="collapseUnsafe">
+            <div class="card card-body">
+                <div>
+                    <div>
+                        U ovom se sustavu ne provodi provjera tokena i koristi se GET za slanje. Stoga, Lopuža radi sljedeći URL: <a href="<%= baseURL %>/csrf/transferfunds?acc=Lopuža&amount=1000" style="color: black;">
+                            <b><%= baseURL %>/csrf/transferfunds?acc=Lopuža&amount=1000</b>
+                        </a>. Učitavanjem ili klikom na taj link šalje se GET zahtjev kojim će Lopuža dobiti novac. To će biti moguće jer je korisnik već prijavljen u sustav u svom pregledniku, tj. postoji kolačić sa sessionID-em. <b>Lopužin cilj je da natjera Đuru da otvori link (pošalje GET zahtjev) dok je njegova korisnička sjednica zapamćena u pregledniku</b>. URL se može ili "otvoriti" direktno ili staviti u src slike neke stranice, recimo otvaranjem stranice <a href="<%= baseURL %>/csrf/lopuzinlink" style = "color: black;">
+                            <b><%= baseURL %>/lopuzinlink</b>
+                        </a> će se isto izvršiti napad jer je u sourceu slike sa širinom 0 i visinom 0 URL koji je Lopuža napravio. Naizgled će korisnik otvoriti samo praznu stranicu, ali će se u pozadini izvršiti napad.
+                    </div>
+                    <div>
+                        Za prijavu u račun Đuro, username je <b>Đuro</b>, a password <b>12345</b>. Ako se želite prijaviti kao <b>Lopuža</b> ili <b>Pero</b>, usernameovi su analogni imenima, a lozinke isto <b>12345</b>.
+                    </div>
+                    <div>
+                        Nakon logina, stvorena je Đurina sjednica. Dok je Đuro prijavljen se, otvaranjem gore navedenog linka skidaju se sredstva s Đurinog i uplaćuju na Lopužin račun. Ako probate otvoriti link nakon logouta ili prije logina, napad neće biti izvršen. Vidimo nakon izvršavanja da se Đuri smanjilo stanje na računu, a Lopuži povećalo. Napad se može izvršiti i gumbom CSRF napad koji se vidi kad je korisik logiran. CSRF napad kad korisnik nije logiran, tj. kad u pregledniku ne postoji sessionID rezultira redirectom na login. Pokušajte otvoriti dani link i dok korisnik nije prijavljen.
+                    </div>
+                    <div>
+                        Taj link možete dobiti u phishing emailu ili nekim drugim neovisnim putem. Gumb za napad je samo ovdje kao prečac za demonstraciju, jako je malo vjerojatno da će ranjivost biti exploitana na samoj stranici. 
+                    </div>
+                    <div>
+                        Akcije koje imate na raspolaganju za testiranje su gumbi <b>Login u sustav s ranjivosti</b>, <b>Logout</b>, <b>Resetiraj stanja računa</b> i <b>CSRF napad</b>. Funkcionalnosti gumba su očite iz samih imena.
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
-    
-    <div class="container d-block">
-        <div class="container d-flex justify-content-center w-100 p-2">
-            <% if (username) { %>
-                <button class="btn btn-sm btn-danger" style="display: inline-block; margin: 10px;">
-                    <a href="/csrf/logout">Logout</a>
-                </button>
-            <% } else { %>
-                <button class="btn btn-sm btn-dark" style="display: inline-block; margin: 10px;">
-                    <a href="csrf/login">Login kao korisnik</a>
-                </button>
-                
-            <% } %>
+</div>
+<div class="container p-2">
+    <h6 class="lead">Sustav bez ranjivosti</h6>
+    <div class="container">
+        <button class="btn btn-dark" type="button" data-toggle="collapse" data-target="#collapseSafe" aria-expanded="false" aria-controls="collapseSafe">
+            Otvori/zatvori upute
+        </button>
+        <div class="collapse" id="collapseSafe">
+            <div class="card card-body">
+                <div>
+                    Ranjivost se otklanja korištenjem <b>POST</b> metode umjesto GET, te korištenjem <b>CSRF tokena</b>.
+                </div>
+                <div>
+                    Korištenjem POST metode onemogućuje se da se GET zahtjevom prebace sredstva. Stoga, Lopuža mora iskoristiti form (obrazac) kako bi izvršio napad. Lopuža je to i napravio na linku <a href="<%= baseURL %>/safecsrf/lopuzinlink" style = "color: black;">
+                        <b><%= baseURL %>/safecsrf/lopuzinlink</b>
+                    </a>. Otvaranjem ovog linka bi se opet mogla iskoristiti ranjivost, zato samo POST metoda nije sigurna. No, u ovom se sustavu koriste tokeni, ne vjeruje se svemu što se pošalje pa se ni preko danog linka ne može izvršiti napad.
+                    U ovom su sustavu korisnici isti, imaju samo sufiks safe na kraju imena. Za prijavu u račun ĐuroSafe, username je <b>ĐuroSafe</b>, a password <b>12345</b>. Ako se želite prijaviti kao <b>LopužaSafe</b> ili <b>PeroSafe</b>, usernameovi su analogni imenima, a lozinke isto <b>12345</b>.
+                </div>
+                <div>
+                    Akcije koje imate na raspolaganju za testiranje su gumbi <b>Login u sustav bez ranjivosti</b>, <b>Logout</b>, <b>Resetiraj stanja sigurih računa</b> i <b>Link CSRF napada</b>. Funkcionalnosti gumba su očite iz samih imena.
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+</div>
+
+<div class="container d-block">
+    <div class="container d-flex justify-content-center w-100 p-2">
+        <% if (username && safe) { %>
+            <button class="btn btn-sm btn-danger" style="display: inline-block; margin: 10px;">
+                <a href="/safecsrf/logout" style="color: white;">Logout</a>
+            </button>
             <button class="btn btn-sm btn-dark" style="display: inline-block; margin: 10px;">
-                <a href="/csrf/transferfunds?acc=Lopuža&amount=1000">CSRF napad</a>
+                <a href="/safecsrf/lopuzinlink" style="color: white;">Link CSRF napada</a>
             </button>
             <form action="/csrf/resetfunds" method="POST">
                 <button class="btn btn-sm btn-dark" style="display: inline-block; margin: 10px;">
                     Resetiraj stanja računa
                 </button>
-            </form>  
-        </div>
-
-        <div>
-            <b>Zaštita:</b> Ranjivost se otklanja korištenjem POST metode umjesto GET, te korištenjem CSRF tokena
-        </div>
-
+            </form> 
+        <% } else if (username && !safe) { %>
+            <button class="btn btn-sm btn-danger" style="display: inline-block; margin: 10px;">
+                <a href="/csrf/logout" style="color: white;">Logout</a>
+            </button>
+            <button class="btn btn-sm btn-dark" style="display: inline-block; margin: 10px;">
+                <a href="/csrf/transferfunds?acc=Lopuža&amount=1000" style="color: white;">CSRF napad</a>
+            </button>
+            <form action="/safecsrf/resetfunds" method="POST">
+                <button class="btn btn-sm btn-dark" style="display: inline-block; margin: 10px;">
+                    Resetiraj stanja sigurnih računa
+                </button>
+            </form> 
+        <% } else { %>
+            <button class="btn btn-sm btn-dark" style="display: inline-block; margin: 10px;">
+                <a href="csrf/login" style="color: white;">Login u sustav s ranjivosti</a>
+            </button>
+            <button class="btn btn-sm btn-dark" style="display: inline-block; margin: 10px;">
+                <a href="safecsrf/login" style="color: white;">Login u sustav bez ranjivosti</a>
+            </button> 
+        <% } %> 
     </div>
-        <hr>
+</div>
+<hr>
 

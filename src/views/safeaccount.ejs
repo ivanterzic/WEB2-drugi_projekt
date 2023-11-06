@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html>  
     <head>
-        <title>CSRF Account</title>
+        <title>CSRF Safe Account</title>
         <%- include('partials/header') %>
         <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css" integrity="sha384-GJzZqFGwb1QTTN6wy59ffF1BuGJpLSa9DkKMp0DgiMDm4iYMj70gZWKYbI706tWS" crossorigin="anonymous">
        
@@ -10,15 +10,16 @@
         <div class="container">
                 <%- include('partials/csrfdesc')%>
                 <div class="text-center d-flex justify-content-center">
-                    <div class="w-25" style="margin: 20px; border: 1px solid black; border-radius: 20px;">
+                    <div class="container" style="margin: 20px; border: 1px solid black; border-radius: 20px;">
                         <h6 class="lead"> <%= results.name %></h6>
-                        <h6 class="lead">Stanje računa: <%= results.account_balance %></h6>
+                        <h6 class="lead">Stanje sigurnog računa: <%= results.account_balance %></h6>
                     </div>
                 </div>
                 <div class="container w-25 mb-5">
                     <h6 class="lead">Prijenos sredstava</h6>
                     <h6 class="lead"><%= message %></h6>
-                    <form action="/csrf/transferfunds" method="get">
+                    <form action="/safecsrf/transferfunds" method="post">
+                        <input type="hidden" name="_csrf" value="<%= csrfToken %>">
                         <div class="form-group">
                             <label for="amount">Iznos:</label>
                             <input type="number" class="form-control" id="amount" name="amount" required>

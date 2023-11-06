@@ -27,6 +27,7 @@ csrfRoutes.use(session({
 }))
 csrfRoutes.use(function(req, res, next) {
     res.locals.username = req.session.username;
+    res.locals.safe = false;
     next();
 });
 
@@ -38,7 +39,7 @@ function checkLoggedIn(req: express.Request, res: express.Response, next: expres
     }
 }
 
-function checkCredentials(req: express.Request, res: express.Response, next: express.NextFunction) {
+function checkCredentials(req, res, next) {
     if (req.body.username && req.body.password) {
         if (req.body.username === "Pero" && req.body.password === "12345" || req.body.username === "Lopuža" && req.body.password === "12345" || req.body.username === "Đuro" && req.body.password === "12345") {
             req.session.loggedin = true;
@@ -51,27 +52,28 @@ function checkCredentials(req: express.Request, res: express.Response, next: exp
             next();
         }
         else {
-            res.render('csrflogin', {message: "Neispravni podaci!", baseURL: urlBase + req.baseUrl});
+            res.render('csrflogin', {message: "Neispravni podaci!", baseURL: urlBase });
         }
     }
     else {
-        res.render('csrflogin', {message: "Neispravni podaci!", baseURL: urlBase + req.baseUrl});
+        res.render('csrflogin', {message: "Neispravni podaci!", baseURL: urlBase });
     }
 }
 
-csrfRoutes.get("/", checkLoggedIn, async (req, res) => {
-    let results
+csrfRoutes.get("/", async (req, res) => {
+    let results, resultss
     try {
         results = await db.query("SELECT name, account_balance FROM csrfexample", [])
+        resultss = await db.query("SELECT name, account_balance FROM safecsrftable", [])
     }
     catch (e) {
         res.send(e);
     }
-    res.render('csrf', {results: results.rows, baseURL: urlBase + req.baseUrl});
+    res.render('csrf', {results: results.rows, resultss: resultss.rows, baseURL: urlBase });
 });
 
 csrfRoutes.get("/login", (req, res) => {
-    res.render('csrflogin', {message: "", baseURL: urlBase + req.baseUrl});
+    res.render('csrflogin', {message: "", baseURL: urlBase });
 });
 
 csrfRoutes.post("/login", checkCredentials, async (req, res) => {
@@ -91,7 +93,7 @@ csrfRoutes.get("/account", checkLoggedIn, async (req, res) => {
     let result
     try {
         result = await db.query("SELECT name, account_balance FROM csrfexample WHERE name = $1", [req.session.username])
-        res.render('account', {results: result.rows[0], baseURL: urlBase + req.baseUrl, message : ""});
+        res.render('account', {results: result.rows[0], baseURL: urlBase , message : ""});
     }
     catch (e) {
         res.send(e);
@@ -111,7 +113,7 @@ csrfRoutes.get("/transferfunds", checkLoggedIn, async (req, res) => {
         res.send(e);
     }
     if (!from || !to || !amount) {
-        res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase + req.baseUrl, message : "Nepostojeći računi!"});
+        res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase , message : "Nepostojeći računi!"});
         return;
     }
     try {
@@ -124,13 +126,13 @@ csrfRoutes.get("/transferfunds", checkLoggedIn, async (req, res) => {
             [to]
         );
         if (fromAccountResult.rows.length !== 1 || toAccountResult.rows.length !== 1) {
-            res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase + req.baseUrl, message : "Nepostojeći računi!"});
+            res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase , message : "Nepostojeći računi!"});
             return;
         }
         const fromAccount = fromAccountResult.rows[0];
         const toAccount = toAccountResult.rows[0];
         if (fromAccount.account_balance < amount) {
-            res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase + req.baseUrl, message : "Nemate dovoljno sredstava!"});
+            res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase , message : "Nemate dovoljno sredstava!"});
             return;
         }
         await db.query(
@@ -143,12 +145,12 @@ csrfRoutes.get("/transferfunds", checkLoggedIn, async (req, res) => {
         );
         res.redirect("/csrf/account");
     } catch (e) {
-        res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase + req.baseUrl, message : "Nepostojeći računi!"});
+        res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase , message : "Nepostojeći računi!"});
     }
 });
 
 csrfRoutes.get("/lopuzinlink", (req, res) => {
-   res.render('lopuza', {baseURL: urlBase + req.baseUrl});
+   res.render('lopuza', {baseURL: urlBase });
 });
 
 csrfRoutes.post("/resetfunds" , async (req, res) => {

@@ -16,7 +16,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/csrf', csrfRoutes);
 app.use('/sql', sqlRoutes);
-app.use('/safecsrft', safeCsrfRoutes);
+app.use('/safecsrf', safeCsrfRoutes);
 
 app.get('/', (req, res) => {
     res.render('index');

@@ -61,9 +61,9 @@ const generateTestSafeCSRF = async () => {
     await createSafeCSRF();
 
     const users = [
-        { name: 'Đuro', account_balance: 100000 },
-        { name: 'Pero', account_balance: 150 },
-        { name: 'Lopuža', account_balance: 0 }
+        { name: 'ĐuroSafe', account_balance: 100000 },
+        { name: 'PeroSafe', account_balance: 150 },
+        { name: 'LopužaSafe', account_balance: 0 }
     ];
 
     const promises = users.map(async (user) => {
@@ -110,7 +110,7 @@ const generateTestUsers = async () => {
         db.pool.end();
     });*/
 
-generateTestCSRF()
+/*generateTestCSRF()
     .then(() => {
         console.log('Test CSRF users inserted successfully');
         db.pool.end();
@@ -118,7 +118,7 @@ generateTestCSRF()
     .catch(err => {
         console.log(err);
         db.pool.end();
-    });
+    });*/
 
 generateTestSafeCSRF()
     .then(() => {

@@ -9,15 +9,16 @@ dotenv.config();
 export const safeCsrfRoutes = express.Router();
 
 const balaceDefaults = {
-    "Đuro" : 100000,
-    "Lopuža" : 0,
-    "Pero" : 150
+    "ĐuroSafe" : 100000,
+    "LopužaSafe" : 0,
+    "PeroSafe" : 150
 }
 
 dotenv.config();
 const urlBase = process.env.DEV_URL || process.env.BASE_URL || "http://localhost:5000";
 
-const csrfZastita = csrf();
+const csrfProtec = csrf();
+
 safeCsrfRoutes.use(express.urlencoded({ extended: true }));
 safeCsrfRoutes.use(session({
     secret : 'secret',
@@ -25,22 +26,24 @@ safeCsrfRoutes.use(session({
     saveUninitialized : true,
     cookie: { secure: false, httpOnly: false }
 }))
+
 safeCsrfRoutes.use(function(req, res, next) {
     res.locals.username = req.session.username;
+    res.locals.safe = true;
     next();
 });
 
-function checkLoggedIn(req: express.Request, res: express.Response, next: express.NextFunction) {
+function checkLoggedIn(req, res, next) {
     if (req.session.loggedin) {
         next();
     } else {
-        res.redirect('/csrf/login');
+        res.redirect('/safecsrf/login');
     }
 }
 
-function checkCredentials(req: express.Request, res: express.Response, next: express.NextFunction) {
+function checkCredentials(req, res, next) {
     if (req.body.username && req.body.password) {
-        if (req.body.username === "Pero" && req.body.password === "12345" || req.body.username === "Lopuža" && req.body.password === "12345" || req.body.username === "Đuro" && req.body.password === "12345") {
+        if (req.body.username === "PeroSafe" && req.body.password === "12345" || req.body.username === "LopužaSafe" && req.body.password === "12345" || req.body.username === "ĐuroSafe" && req.body.password === "12345") {
             req.session.loggedin = true;
             req.session.username = req.body.username;
             req.session.regenerate(function(err) {
@@ -51,47 +54,48 @@ function checkCredentials(req: express.Request, res: express.Response, next: exp
             next();
         }
         else {
-            res.render('csrflogin', {message: "Neispravni podaci!", baseURL: urlBase + req.baseUrl});
+            res.render('safecsrflogin', {message: "Neispravni podaci!", baseURL: urlBase});
         }
     }
     else {
-        res.render('csrflogin', {message: "Neispravni podaci!", baseURL: urlBase + req.baseUrl});
+        res.render('safecsrflogin', {message: "Neispravni podaci!", baseURL: urlBase});
     }
 }
 
-safeCsrfRoutes.get("/", checkLoggedIn, async (req, res) => {
-    let results
+safeCsrfRoutes.get("/", async (req, res) => {
+    let results, resultss
     try {
-        results = await db.query("SELECT name, account_balance FROM csrfexample", [])
+        results = await db.query("SELECT name, account_balance FROM safecsrftable", [])
+        resultss = await db.query("SELECT name, account_balance FROM safecsrftable", [])
     }
     catch (e) {
         res.send(e);
     }
-    res.render('csrf', {results: results.rows, baseURL: urlBase + req.baseUrl});
+    res.render('csrf', {results: results.rows, resultss: resultss.rows, baseURL: urlBase});
 });
 
 safeCsrfRoutes.get("/login", (req, res) => {
-    res.render('csrflogin', {message: "", baseURL: urlBase + req.baseUrl});
+    res.render('safecsrflogin', {message: "", baseURL: urlBase});
 });
 
 safeCsrfRoutes.post("/login", checkCredentials, async (req, res) => {
-    res.redirect('/csrf/account');
+    res.redirect('/safecsrf/account');
 });
 
-safeCsrfRoutes.get("/logout", async (req, res) => {
+safeCsrfRoutes.get("/logout", checkLoggedIn, async (req, res) => {
     req.session.destroy(function(err) {
         if(err){
             res.send(err);
         }
     });
-    res.redirect('/csrf');
+    res.redirect('/safecsrf');
 });
 
-safeCsrfRoutes.get("/account", checkLoggedIn, async (req, res) => {    
+safeCsrfRoutes.get("/account", checkLoggedIn, csrfProtec, async (req, res) => {    
     let result
     try {
-        result = await db.query("SELECT name, account_balance FROM csrfexample WHERE name = $1", [req.session.username])
-        res.render('account', {results: result.rows[0], baseURL: urlBase + req.baseUrl, message : ""});
+        result = await db.query("SELECT name, account_balance FROM safecsrftable WHERE name = $1", [req.session.username])
+        res.render('safeaccount', {results: result.rows[0], baseURL: urlBase, message : "", csrfToken: req.csrfToken()});
     }
     catch (e) {
         res.send(e);
@@ -99,63 +103,63 @@ safeCsrfRoutes.get("/account", checkLoggedIn, async (req, res) => {
     }
 });
 
-safeCsrfRoutes.get("/transferfunds", checkLoggedIn, async (req, res) => {
+safeCsrfRoutes.post("/transferfunds", checkLoggedIn, csrfProtec, async (req, res) => {
     const from = req.session.username;
-    const to = req.query.acc
-    const amount = req.query.amount
+    const to = req.body.acc
+    const amount = req.body.amount
     let resultInitial
     try {
-        resultInitial = await db.query("SELECT name, account_balance FROM csrfexample WHERE name = $1", [req.session.username])
+        resultInitial = await db.query("SELECT name, account_balance FROM safecsrftable WHERE name = $1", [req.session.username])
     }
     catch (e) {
         res.send(e);
     }
     if (!from || !to || !amount) {
-        res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase + req.baseUrl, message : "Nepostojeći računi!"});
+        res.render('safeaccount', {results: resultInitial.rows[0] , baseURL: urlBase, message : "Nepostojeći računi!", csrfToken: req.csrfToken()});
         return;
     }
     try {
         const fromAccountResult = await db.query(
-            "SELECT account_balance FROM csrfexample WHERE name = $1",
+            "SELECT account_balance FROM safecsrftable WHERE name = $1",
             [from]
         );
         const toAccountResult = await db.query(
-            "SELECT account_balance FROM csrfexample WHERE name = $1",
+            "SELECT account_balance FROM safecsrftable WHERE name = $1",
             [to]
         );
         if (fromAccountResult.rows.length !== 1 || toAccountResult.rows.length !== 1) {
-            res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase + req.baseUrl, message : "Nepostojeći računi!"});
+            res.render('safeaccount', {results: resultInitial.rows[0] , baseURL: urlBase, message : "Nepostojeći računi!", csrfToken: req.csrfToken()});
             return;
         }
         const fromAccount = fromAccountResult.rows[0];
         const toAccount = toAccountResult.rows[0];
         if (fromAccount.account_balance < amount) {
-            res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase + req.baseUrl, message : "Nemate dovoljno sredstava!"});
+            res.render('safeaccount', {results: resultInitial.rows[0] , baseURL: urlBase, message : "Nemate dovoljno sredstava!", csrfToken: req.csrfToken()});
             return;
         }
         await db.query(
-            "UPDATE csrfexample SET account_balance = account_balance - $1 WHERE name = $2",
+            "UPDATE safecsrftable SET account_balance = account_balance - $1 WHERE name = $2",
             [amount, from]
         );
         await db.query(
-            "UPDATE csrfexample SET account_balance = account_balance + $1 WHERE name = $2",
+            "UPDATE safecsrftable SET account_balance = account_balance + $1 WHERE name = $2",
             [amount, to]
         );
-        res.redirect("/csrf/account");
+        res.redirect("/safecsrf/account");
     } catch (e) {
-        res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase + req.baseUrl, message : "Nepostojeći računi!"});
+        res.render('safeaccount', {results: resultInitial.rows[0] , baseURL: urlBase, message : "Nepostojeći računi!", csrfToken: req.csrfToken()});
     }
 });
 
 safeCsrfRoutes.get("/lopuzinlink", (req, res) => {
-   res.render('lopuza', {baseURL: urlBase + req.baseUrl});
+   res.render('safelopuza', {baseURL: urlBase});
 });
 
-safeCsrfRoutes.post("/resetfunds" , async (req, res) => {
+safeCsrfRoutes.post("/resetfunds", async (req, res) => {
     let result
     try {
         for (const [key, value] of Object.entries(balaceDefaults)) {
-            result = await db.query("UPDATE csrfexample SET account_balance = $1 WHERE name = $2", [value, key])
+            result = await db.query("UPDATE safecsrftable SET account_balance = $1 WHERE name = $2", [value, key])
         }
     }
     catch (e) {

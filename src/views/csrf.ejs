@@ -26,7 +26,7 @@
         </style>
     </head>
     <body>
-        <div class="container m-2">
+        <div class="container">
             <%- include('partials/csrfdesc')%>
             <div class="text-center">
                 <h6 class="lead">Stanja računa</h6>
@@ -42,6 +42,23 @@
                             <tr>
                                 <td><%= results[i].name %></td>
                                 <td><%= results[i].account_balance %></td>
+                            </tr>
+                        <% } %>
+                    </tbody>
+                </table>
+                <h6 class="lead">Stanja računa - Sustav s otklonjenom ranjivosti</h6>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Ime</th>
+                            <th>Stanje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <% for (let i = 0; i < results.length ; ++i){ %>
+                            <tr>
+                                <td><%= resultss[i].name %></td>
+                                <td><%= resultss[i].account_balance %></td>
                             </tr>
                         <% } %>
                     </tbody>
