@@ -46,7 +46,7 @@ Ovdje vidimo primjer <b>CSRF napada</b>, tj. lažiranje zahtjeva na drugom sjedi
                         U ovom se sustavu ne provodi provjera tokena i koristi se GET za slanje. Stoga, Lopuža radi sljedeći URL: <a href="<%= baseURL %>/csrf/transferfunds?acc=Lopuža&amount=1000" style="color: black;">
                             <b><%= baseURL %>/csrf/transferfunds?acc=Lopuža&amount=1000</b>
                         </a>. Učitavanjem ili klikom na taj link šalje se GET zahtjev kojim će Lopuža dobiti novac. To će biti moguće jer je korisnik već prijavljen u sustav u svom pregledniku, tj. postoji kolačić sa sessionID-em. <b>Lopužin cilj je da natjera Đuru da otvori link (pošalje GET zahtjev) dok je njegova korisnička sjednica zapamćena u pregledniku</b>. URL se može ili "otvoriti" direktno ili staviti u src slike neke stranice, recimo otvaranjem stranice <a href="<%= baseURL %>/csrf/lopuzinlink" style = "color: black;">
-                            <b><%= baseURL %>/lopuzinlink</b>
+                            <b><%= baseURL %>/csrf/lopuzinlink</b>
                         </a> će se isto izvršiti napad jer je u sourceu slike sa širinom 0 i visinom 0 URL koji je Lopuža napravio. Naizgled će korisnik otvoriti samo praznu stranicu, ali će se u pozadini izvršiti napad.
                     </div>
                     <div>
@@ -102,9 +102,10 @@ Ovdje vidimo primjer <b>CSRF napada</b>, tj. lažiranje zahtjeva na drugom sjedi
             <button class="btn btn-sm btn-dark" style="display: inline-block; margin: 10px;">
                 <a href="/safecsrf/lopuzinlink" style="color: white;">Link CSRF napada</a>
             </button>
-            <form action="/csrf/resetfunds" method="POST">
+
+            <form action="/safecsrf/resetfunds" method="POST">
                 <button class="btn btn-sm btn-dark" style="display: inline-block; margin: 10px;">
-                    Resetiraj stanja računa
+                    Resetiraj stanja sigurnih računa
                 </button>
             </form> 
         <% } else if (username && !safe) { %>
@@ -114,9 +115,9 @@ Ovdje vidimo primjer <b>CSRF napada</b>, tj. lažiranje zahtjeva na drugom sjedi
             <button class="btn btn-sm btn-dark" style="display: inline-block; margin: 10px;">
                 <a href="/csrf/transferfunds?acc=Lopuža&amount=1000" style="color: white;">CSRF napad</a>
             </button>
-            <form action="/safecsrf/resetfunds" method="POST">
+            <form action="/csrf/resetfunds" method="POST">
                 <button class="btn btn-sm btn-dark" style="display: inline-block; margin: 10px;">
-                    Resetiraj stanja sigurnih računa
+                    Resetiraj stanja računa
                 </button>
             </form> 
         <% } else { %>
