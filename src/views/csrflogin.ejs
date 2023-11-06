@@ -10,18 +10,20 @@
         <div class="container">
             <% include('partials/csrfdesc') %>
             <h1 class="text-center my-5">CSRF Login</h1>
-            <h6 class="lead"><%= message %></h6>
-            <form action="/csrf/login" method="post">
-                <div class="form-group">
-                    <label for="username">Korisničko ime</label>
-                    <input type="text" class="form-control" id="username" name="username" placeholder="Enter username">
-                </div>
-                <div class="form-group">
-                    <label for="password">Lozinka</label>
-                    <input type="password" class="form-control" id="password" name="password" placeholder="Password">
-                </div>
-                <button type="submit" class="btn btn-dark">Submit</button>
-            </form>
+            <div class="container w-50">
+                <h6 class="lead"><%= message %></h6>
+                <form action="/csrf/login" method="post">
+                    <div class="form-group">
+                        <label for="username">Korisničko ime</label>
+                        <input type="text" class="form-control" id="username" name="username" placeholder="Enter username">
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Lozinka</label>
+                        <input type="password" class="form-control" id="password" name="password" placeholder="Password">
+                    </div>
+                    <button type="submit" class="btn btn-dark">Submit</button>
+                </form>
+            </div> 
         </div>
     </body>
 </html>

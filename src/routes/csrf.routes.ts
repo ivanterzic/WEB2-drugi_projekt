@@ -8,6 +8,12 @@ dotenv.config();
 
 export const csrfRoutes = express.Router();
 
+const balaceDefaults = {
+    "Đuro" : 100000,
+    "Lopuža" : 0,
+    "Pero" : 150
+}
+
 dotenv.config();
 const urlBase = process.env.DEV_URL || process.env.BASE_URL || "http://localhost:5000";
 
@@ -19,6 +25,11 @@ csrfRoutes.use(session({
     saveUninitialized : true,
     cookie: { secure: false, httpOnly: false }
 }))
+csrfRoutes.use(function(req, res, next) {
+    res.locals.username = req.session.username;
+    next();
+}
+);
 
 csrfRoutes.get("/", async (req, res) => {
     let results
@@ -73,8 +84,8 @@ csrfRoutes.get("/account", async (req, res) => {
     if (req.session.loggedin) {
         let result
         try {
-            result = await db.query("SELECT name, account_balance FROM csrfexample", [])
-            res.render('account', {results: result.rows[0], baseURL: urlBase + req.baseUrl});
+            result = await db.query("SELECT name, account_balance FROM csrfexample WHERE name = $1", [req.session.username])
+            res.render('account', {results: result.rows[0], baseURL: urlBase + req.baseUrl, message : ""});
         }
         catch (e) {
             res.send(e);
@@ -86,29 +97,39 @@ csrfRoutes.get("/account", async (req, res) => {
 }
 );
 
-
- 
 csrfRoutes.get("/transferfunds", async (req, res) => {
     if (req.session.loggedin) {
         const from = req.session.username;
         const to = req.query.acc
         const amount = req.query.amount
+        let resultInitial
+        try {
+            resultInitial = await db.query("SELECT name, account_balance FROM csrfexample WHERE name = $1", [req.session.username])
+        }
+        catch (e) {
+            res.send(e);
+        }
         if (!from || !to || !amount) {
-            res.status(400).send("Nedostaju parametri!");
+            res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase + req.baseUrl, message : "Nepostojeći računi!"});
             return;
         }
         try {
-            const result = await db.query(
-                "SELECT account_balance FROM csrfexample WHERE name = $1 OR name = $2",
-                [from, to]
+            const fromAccountResult = await db.query(
+                "SELECT account_balance FROM csrfexample WHERE name = $1",
+                [from]
             );
-            if (result.rows.length !== 2) {
-                res.status(400).send("Nepostojeći računi!");
+            const toAccountResult = await db.query(
+                "SELECT account_balance FROM csrfexample WHERE name = $1",
+                [to]
+            );
+            if (fromAccountResult.rows.length !== 1 || toAccountResult.rows.length !== 1) {
+                res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase + req.baseUrl, message : "Nepostojeći računi!"});
                 return;
             }
-            const [fromAccount, toAccount] = result.rows;
+            const fromAccount = fromAccountResult.rows[0];
+            const toAccount = toAccountResult.rows[0];
             if (fromAccount.account_balance < amount) {
-                res.status(400).send("nedovoljno sredstava!");
+                res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase + req.baseUrl, message : "Nemate dovoljno sredstava!"});
                 return;
             }
             await db.query(
@@ -121,7 +142,7 @@ csrfRoutes.get("/transferfunds", async (req, res) => {
             );
             res.redirect("/csrf/account");
         } catch (e) {
-            res.status(500).send(e);
+            res.render('account', {results: resultInitial.rows[0] , baseURL: urlBase + req.baseUrl, message : "Nepostojeći računi!"});
         }
     } else {
         res.redirect("/csrf/login");
@@ -129,7 +150,21 @@ csrfRoutes.get("/transferfunds", async (req, res) => {
 }
 );
 
-csrfRoutes.get("lopuzinlink", async (req, res) => {
+csrfRoutes.get("/lopuzinlink", (req, res) => {
    res.render('lopuza', {baseURL: urlBase + req.baseUrl});
+}
+);
+
+csrfRoutes.post("/resetfunds" , async (req, res) => {
+    let result
+    try {
+        for (const [key, value] of Object.entries(balaceDefaults)) {
+            result = await db.query("UPDATE csrfexample SET account_balance = $1 WHERE name = $2", [value, key])
+        }
+    }
+    catch (e) {
+        res.send(e);
+    }
+    res.redirect('/csrf');
 }
 );

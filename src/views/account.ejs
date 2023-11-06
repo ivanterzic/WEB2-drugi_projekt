@@ -8,14 +8,29 @@
     </head>
     <body>
         <div class="container">
-            <%- include('partials/csrfdesc')%>
-            <div class="text-center">
-                <div class="container" style="margin: 20px; border: 1px solid black;">
-                    <h6 class="lead"> <%= results.name %></h6>
-                    <h6 class="lead">Stanje računa: <%= results.account_balance %></h6>
+                <%- include('partials/csrfdesc')%>
+                <div class="text-center">
+                    <div class="container" style="margin: 20px; border: 1px solid black;">
+                        <h6 class="lead"> <%= results.name %></h6>
+                        <h6 class="lead">Stanje računa: <%= results.account_balance %></h6>
+                    </div>
+                </div>
+                <div class="container w-25">
+                    <h6 class="lead">Prijenos stredstava</h6>
+                    <h6 class="lead"><%= message %></h6>
+                    <form action="/csrf/transferfunds" method="get">
+                        <div class="form-group">
+                            <label for="amount">Iznos:</label>
+                            <input type="number" class="form-control" id="amount" name="amount" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="account">Odredišni račun:</label>
+                            <input type="text" class="form-control" id="acc" name="acc" required>
+                        </div>
+                        <button type="submit" class="btn btn-dark">Submit</button>
+                    </form>
                 </div>
             </div>
-        </div>
     </body>
 </html>
                 

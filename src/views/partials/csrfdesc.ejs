@@ -1,16 +1,65 @@
-<h1 class="text-center my-5">CSRF</h1>
-Ovdje vidimo primjer CSRF napada, tj. lažiranje zahtjeva na drugom sjedištu. Preglednik žrtve šalje naredbu ranjivoj web aplikaciji. Tipično se koristi za iniciranje transakcija, pristupa podatcima i slično. CSRF napad može se izvesti u GET i POST zahtjevima. Ovdje će se koristiti GET zahtjev.
-<div><b>Upute:</b> Kod demonstracije ovog napada imat ćemo 3 aktera. Đuro, Pero i Lopuža. Stavite se u kožu Đure. Želite svome prijatelju Peri prebaciti vrijednost 100 neke valute. Prikaz bankovnog računa pojedinca dan je niže (ovdje bi se narušavala nesigurna pohrana (prikaz) osjetljivih podataka da su stvarni računi, narušio bi se i GDPR, ali ovdje je tu za primjer takav prikaz). <div>
-<div>Lopuža će pokušati CSRF napadom uzeti tu valutu. Lopuža radi sljedeći URL: <b><%= baseURL %>/transferfunds?acc=Lopuža&amount=1000. Učitavanjem ili klikom na taj link šalje se GET zahtjev kojim će Lopuža dobiti novac. To će biti moguće jer je korisnik već prijavljen u sustav u svom pregledniku, tj. postoji kolačić sa sessionID-em. Ovdje je, naravno samo zbog demonstracije</b></div>
-<div>Za prijavu u račun (uzmite Đuro račun; za prijavu je username <b>Đuro</b>, a password <b>12345</b>).</div>
-<div>Nakon logina, stvorena je Đurina sjednica. Radi jednostavnosti, ovaj "sustav" nema mogućnost "normalnog" prebacivanja sredstava. Dok je Đuro prijavljen se, otvaranjem gore navedenog linka skidaju sredstva s Đurinog i uplaćuju na Lopužin račun.</div>
-<div>
-    <% if (session) { %>
-        <form action="/csrf/logout" method="POST">
-            <button type="submit" class="btn btn-danger">Logout</button>
-        </form>
-    <% } %>
-</div>
-<div><b>Zaštita:</b> Označavanjem checkboxa se radi validacija i sanetizacija unosa te parametrizacija unosa. Također se ne ispisuju detalji o greškama.</div>
-<hr>
+<head>
+    <style>
+        a {
+            color: white;
+        }
+        a :hover {
+            color: white;
+        }
+        button :hover {
+            color: white;
+        }
+    </style>
+</head>
+<div class="container">
+    <div>
+        <h1 class="text-center my-5">CSRF</h1>
+        Ovdje vidimo primjer CSRF napada, tj. lažiranje zahtjeva na drugom sjedištu. Preglednik žrtve šalje naredbu ranjivoj web aplikaciji. Tipično se koristi za iniciranje transakcija, pristupa podatcima i slično. CSRF napad može se izvesti u GET i POST zahtjevima. Ovdje će se koristiti GET zahtjev.
+        <div>
+            <b>Upute:</b> Kod demonstracije ovog napada imat ćemo 3 aktera. Đuro, Pero i Lopuža. Stavite se u kožu Đure. Želite svome prijatelju Peri prebaciti vrijednost 100 neke valute. Prikaz bankovnog računa pojedinca dan je niže (ovdje bi se narušavala nesigurna pohrana (prikaz) osjetljivih podataka da su stvarni računi, narušio bi se i GDPR, ali ovdje je tu za primjer takav prikaz). 
+        </div>
+        <div>
+            Lopuža će pokušati CSRF napadom uzeti tu valutu. Lopuža radi sljedeći URL: <b><%= baseURL %>/transferfunds?acc=Lopuža&amount=1000</b>. Učitavanjem ili klikom na taj link šalje se GET zahtjev kojim će Lopuža dobiti novac. To će biti moguće jer je korisnik već prijavljen u sustav u svom pregledniku, tj. postoji kolačić sa sessionID-em. <b>Lopužin cilj je da natjera Đuru da otvori link (pošalje GET zahtjev) dok je njegova korisnička sjednica zapamćena u pregledniku</b>. URL se može ili "otvoriti" direktno ili staviti u src slike neke stranice, recimo otvaranjem stranice <b><%= baseURL %>/lopuzinlink</b> će se isto izvršiti napad jer je u sourceu slike sa širinom 0 i visinom 0 URL koji je Lopuža napravio. Naizgled će korisnik otvoriti samo praznu stranicu, ali će se izvršiti napad.
+        </div>
+        <div>
+            Za prijavu u račun (uzmite Đuro račun; za prijavu je username <b>Đuro</b>, a password <b>12345</b>).
+        </div>
+        <div>
+            Nakon logina, stvorena je Đurina sjednica. Dok je Đuro prijavljen se, otvaranjem gore navedenog linka skidaju se sredstva s Đurinog i uplaćuju na Lopužin račun. Ako probate otvoriti link nakon ili prije logouta, napad neće biti izvršen. Vidimo nakon izvršavanja da se Đuri smanjilo stanje na računu, a Lopuži povećalo. Napad se može izvršiti i gumbom CSRF napad koji se vidi kad je korisik logiran. CSRF napad kad korisnik nije logiran, tj. kad u pregledniku ne postoji sessionID rezultira redirectom na login.
+        </div>
+        <div>
+            Pokušajte otvoriti dani link i dok korisnik nije prijavljen. Taj link možete dobiti u phishing emailu ili nekim drugim neovisnim putem. Ovaj gumb je samo ovdje kao prečac za demonstraciju. 
+        </div>
+        <div>
+            
+        </div>
+    </div>
+    
+    <div class="container d-block">
+        <div class="container d-flex justify-content-center w-100 p-2">
+            <% if (username) { %>
+                <button class="btn btn-sm btn-danger" style="display: inline-block; margin: 10px;">
+                    <a href="/csrf/logout">Logout</a>
+                </button>
+            <% } else { %>
+                <button class="btn btn-sm btn-dark" style="display: inline-block; margin: 10px;">
+                    <a href="csrf/login">Login kao korisnik</a>
+                </button>
+            <% } %>
+            <button class="btn btn-sm btn-dark" style="display: inline-block; margin: 10px;">
+                <a href="/csrf/transferfunds?acc=Lopuža&amount=1000">CSRF napad</a>
+            </button>
+            <form action="/csrf/resetfunds" method="POST">
+                <button class="btn btn-sm btn-dark" style="display: inline-block; margin: 10px;">
+                    Resetiraj stanja računa
+                </button>
+            </form>  
+        </div>
+
+        <div>
+            <b>Zaštita:</b> Ranjivost se otklanja korištenjem POST metode umjesto GET, te korištenjem CSRF tokena
+        </div>
+
+    </div>
+        <hr>
 

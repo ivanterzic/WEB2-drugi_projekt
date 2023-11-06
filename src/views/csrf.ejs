@@ -26,15 +26,9 @@
         </style>
     </head>
     <body>
-        <div class="container">
+        <div class="container m-2">
             <%- include('partials/csrfdesc')%>
             <div class="text-center">
-                <button class="mr-3">
-                    <a href="<%= baseURL %>/transferfunds?acc=Lopuža&amount=1000">CSRF napad</a>
-                </button>
-                <button>
-                    <a href="csrf/login">Login kao korisnik</a>
-                </button>
                 <h6 class="lead">Stanja računa</h6>
                 <table>
                     <thead>
