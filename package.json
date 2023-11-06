@@ -27,6 +27,7 @@
     "mailgun-js": "^0.22.0",
     "nodemon": "^3.0.1",
     "pg": "^8.11.3",
+    "robocopy": "^0.1.16",
     "typescript": "^5.2.2"
   },
   "devDependencies": {
