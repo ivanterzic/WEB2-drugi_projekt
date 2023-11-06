@@ -29,7 +29,7 @@
 </head>
 
 <h1 class="text-center my-5">CSRF</h1>
-Ovdje vidimo primjer CSRF napada, tj. lažiranje zahtjeva na drugom sjedištu. Preglednik žrtve šalje naredbu ranjivoj web aplikaciji. Tipično se koristi za iniciranje transakcija, pristup podatcima i slično. CSRF napad može se izvesti u GET i POST zahtjevima.
+Ovdje vidimo primjer <b>CSRF napada</b>, tj. lažiranje zahtjeva na drugom sjedištu. Preglednik žrtve šalje naredbu ranjivoj web aplikaciji. Tipično se koristi za iniciranje transakcija, pristup podatcima i slično. CSRF napad može se izvesti u GET i POST zahtjevima.
 <div>
     Kod demonstracije ovog napada imat ćemo 3 aktera. Đuro, Pero i Lopuža. Stavite se, recimo, u kožu Đure. Želite svome prijatelju Peri prebaciti vrijednost 100 neke valute. Prikaz bankovnog računa pojedinca dan je niže (ovdje bi se narušavala nesigurna pohrana (prikaz) osjetljivih podataka da su stvarni računi, narušio bi se i GDPR, ali ovdje je tu za primjer takav prikaz). Lopuža će pokušati iskoristiti CSRF ranjivost kako bi novac prebacio na svoj račun dok je Đuro prijavljen, tj. pokušat će iskorisiti sessionID spremljen u Đurinom pregledniku u svoju korist. 
 </div>

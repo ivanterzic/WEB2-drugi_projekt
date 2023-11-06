@@ -15,7 +15,7 @@
                 padding: 8px;
             }
 
-            tr:nth-child(even) {
+            tr:nth-child(odd) {
                 background-color: #f2f2f2;
             }
 
@@ -28,42 +28,45 @@
     <body>
         <div class="container">
             <%- include('partials/csrfdesc')%>
-            <div class="text-center">
-                <h6 class="lead">Stanja računa</h6>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Ime</th>
-                            <th>Stanje</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% for (let i = 0; i < results.length ; ++i){ %>
+            <div class="d-flex justify-content-center">
+                <div class="text-center d-flex w-50 flex-column mb-5 justify-content-center">
+                    <h6 class="lead">Stanja računa</h6>
+                    <table class="mb-5">
+                        <thead>
                             <tr>
-                                <td><%= results[i].name %></td>
-                                <td><%= results[i].account_balance %></td>
+                                <th class="text-center">Ime</th>
+                                <th class="text-center">Stanje</th>
                             </tr>
-                        <% } %>
-                    </tbody>
-                </table>
-                <h6 class="lead">Stanja računa - Sustav s otklonjenom ranjivosti</h6>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Ime</th>
-                            <th>Stanje</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <% for (let i = 0; i < results.length ; ++i){ %>
+                        </thead>
+                        <tbody>
+                            <% for (let i = 0; i < results.length ; ++i){ %>
+                                <tr>
+                                    <td class="text-center"><%= results[i].name %></td>
+                                    <td class="text-center"><%= results[i].account_balance %></td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                    <h6 class="lead">Stanja računa - Sustav s otklonjenom ranjivosti</h6>
+                    <table class="mb-5">
+                        <thead>
                             <tr>
-                                <td><%= resultss[i].name %></td>
-                                <td><%= resultss[i].account_balance %></td>
+                                <th class="text-center">Ime</th>
+                                <th class="text-center">Stanje</th>
                             </tr>
-                        <% } %>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <% for (let i = 0; i < results.length ; ++i){ %>
+                                <tr>
+                                    <td class="text-center"><%= resultss[i].name %></td>
+                                    <td class="text-center"><%= resultss[i].account_balance %></td>
+                                </tr>
+                            <% } %>
+                        </tbody>
+                    </table>
+                </div>
             </div>
+            
         </div>
     </body>
 </html>
