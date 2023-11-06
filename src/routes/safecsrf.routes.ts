@@ -165,5 +165,5 @@ safeCsrfRoutes.post("/resetfunds", async (req, res) => {
     catch (e) {
         res.send(e);
     }
-    res.redirect('/logout');
+    res.redirect('/safecsrf/logout');
 });
