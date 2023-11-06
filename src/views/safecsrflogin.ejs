@@ -8,8 +8,8 @@
     </head>
     <body>
         <div class="container">
-           
             <h1 class="text-center my-5">CSRF Safe Login</h1>
+            <%- include('partials/csrfdesc')%>
             <div class="container w-50 mb-3">
                 <h6 class="lead"><%= message %></h6>
                 <form action="/safecsrf/login" method="post">
